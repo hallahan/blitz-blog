@@ -14,6 +14,12 @@ export const TagsList = () => {
     take: ITEMS_PER_PAGE,
   })
 
+  function isServer() {
+    return !(typeof window != "undefined" && window.document)
+  }
+  console.log("TagsList isServer", isServer())
+  console.log("tags", tags)
+
   const goToPreviousPage = () => router.push({ query: { page: page - 1 } })
   const goToNextPage = () => router.push({ query: { page: page + 1 } })
 
