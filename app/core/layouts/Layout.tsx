@@ -1,5 +1,5 @@
 import { ReactNode } from "react"
-import { Head } from "blitz"
+import { Head, Link, Routes } from "blitz"
 
 type LayoutProps = {
   title?: string
@@ -14,6 +14,19 @@ const Layout = ({ title, children }: LayoutProps) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <nav>
+        <Link href={Routes.PostsPage()}>
+          <a>Posts</a>
+        </Link>
+        |
+        <Link href={Routes.CategoriesPage()}>
+          <a>Categories</a>
+        </Link>
+        |
+        <Link href={Routes.TagsPage()}>
+          <a>Tags</a>
+        </Link>
+      </nav>
       {children}
     </>
   )
