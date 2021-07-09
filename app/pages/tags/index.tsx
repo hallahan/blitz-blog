@@ -1,11 +1,10 @@
-import { Suspense } from "react"
 import { Head, Link, usePaginatedQuery, useRouter, BlitzPage, Routes } from "blitz"
 import Layout from "app/core/layouts/Layout"
-import getTags from "app/tags/queries/getTags"
+import db, { Prisma } from "db"
 
 const ITEMS_PER_PAGE = 100
 
-export const TagsList = ({ tags, hasMore }) => {
+export const TagsList = ({ tags }) => {
   const router = useRouter()
   const page = Number(router.query.page) || 0
 
@@ -23,13 +22,6 @@ export const TagsList = ({ tags, hasMore }) => {
           </li>
         ))}
       </ul>
-
-      <button disabled={page === 0} onClick={goToPreviousPage}>
-        Previous
-      </button>
-      <button disabled={!hasMore} onClick={goToNextPage}>
-        Next
-      </button>
     </div>
   )
 }
@@ -48,7 +40,7 @@ const TagsPage: BlitzPage = (props) => {
           </Link>
         </p>
 
-        <TagsList tags={props.tags} hasMore={props.hasMore} />
+        <TagsList tags={props.tags} />
       </div>
     </>
   )
@@ -59,11 +51,8 @@ TagsPage.getLayout = (page) => <Layout>{page}</Layout>
 
 export async function getServerSideProps(context) {
   const page = Number(context.query.page) || 0
-  const [{ tags, hasMore }] = usePaginatedQuery(getTags, {
-    orderBy: { id: "asc" },
-    skip: ITEMS_PER_PAGE * page,
-    take: ITEMS_PER_PAGE,
-  })
+
+  const tags = await db.tag.findMany()
 
   function isServer() {
     return !(typeof window != "undefined" && window.document)
@@ -74,7 +63,6 @@ export async function getServerSideProps(context) {
   return {
     props: {
       tags,
-      hasMore,
     },
   }
 }
