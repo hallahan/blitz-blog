@@ -5,20 +5,9 @@ import getTags from "app/tags/queries/getTags"
 
 const ITEMS_PER_PAGE = 100
 
-export const TagsList = () => {
+export const TagsList = ({ tags, hasMore }) => {
   const router = useRouter()
   const page = Number(router.query.page) || 0
-  const [{ tags, hasMore }] = usePaginatedQuery(getTags, {
-    orderBy: { id: "asc" },
-    skip: ITEMS_PER_PAGE * page,
-    take: ITEMS_PER_PAGE,
-  })
-
-  function isServer() {
-    return !(typeof window != "undefined" && window.document)
-  }
-  console.log("TagsList isServer", isServer())
-  console.log("tags", tags)
 
   const goToPreviousPage = () => router.push({ query: { page: page - 1 } })
   const goToNextPage = () => router.push({ query: { page: page + 1 } })
@@ -45,7 +34,7 @@ export const TagsList = () => {
   )
 }
 
-const TagsPage: BlitzPage = () => {
+const TagsPage: BlitzPage = (props) => {
   return (
     <>
       <Head>
@@ -59,9 +48,7 @@ const TagsPage: BlitzPage = () => {
           </Link>
         </p>
 
-        <Suspense fallback={<div>Loading...</div>}>
-          <TagsList />
-        </Suspense>
+        <TagsList tags={props.tags} hasMore={props.hasMore} />
       </div>
     </>
   )
@@ -69,5 +56,27 @@ const TagsPage: BlitzPage = () => {
 
 TagsPage.authenticate = true
 TagsPage.getLayout = (page) => <Layout>{page}</Layout>
+
+export async function getServerSideProps(context) {
+  const page = Number(context.query.page) || 0
+  const [{ tags, hasMore }] = usePaginatedQuery(getTags, {
+    orderBy: { id: "asc" },
+    skip: ITEMS_PER_PAGE * page,
+    take: ITEMS_PER_PAGE,
+  })
+
+  function isServer() {
+    return !(typeof window != "undefined" && window.document)
+  }
+  console.log("getServerSideProps isServer", isServer())
+  console.log("tags", tags)
+
+  return {
+    props: {
+      tags,
+      hasMore,
+    },
+  }
+}
 
 export default TagsPage
