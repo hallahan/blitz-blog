@@ -63,3 +63,30 @@ model Token {
 // enum TokenType {
 //   RESET_PASSWORD
 // }
+
+model Tag {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String   @unique
+  posts     Post[]
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String   @unique
+  posts     Post[]
+}
+
+model Post {
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  title      String    @unique
+  content    String
+  tags       Tag[]
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId Int?
+}
