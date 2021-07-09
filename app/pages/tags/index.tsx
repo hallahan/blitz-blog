@@ -1,4 +1,12 @@
-import { Head, Link, usePaginatedQuery, useRouter, BlitzPage, Routes } from "blitz"
+import {
+  Head,
+  Link,
+  GetServerSideProps,
+  InferGetServerSidePropsType,
+  useRouter,
+  BlitzPage,
+  Routes,
+} from "blitz"
 import Layout from "app/core/layouts/Layout"
 import db, { Prisma } from "db"
 
@@ -26,7 +34,7 @@ export const TagsList = ({ tags }) => {
   )
 }
 
-const TagsPage: BlitzPage = (props) => {
+function TagsPage({ tags }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <>
       <Head>
@@ -40,7 +48,7 @@ const TagsPage: BlitzPage = (props) => {
           </Link>
         </p>
 
-        <TagsList tags={props.tags} />
+        <TagsList tags={tags} />
       </div>
     </>
   )
@@ -49,7 +57,7 @@ const TagsPage: BlitzPage = (props) => {
 TagsPage.authenticate = true
 TagsPage.getLayout = (page) => <Layout>{page}</Layout>
 
-export async function getServerSideProps(context) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   const page = Number(context.query.page) || 0
 
   const tags = await db.tag.findMany()
